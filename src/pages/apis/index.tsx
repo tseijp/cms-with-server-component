@@ -3,11 +3,11 @@ import Header from "@/_client/atoms/Header";
 import Table from "@/_client/atoms/Table";
 import models from "@/_server/models";
 import Datetime from "@/_client/atoms/DateTime";
-import { TableRow } from "@/_client/apis";
+import { TableRow } from "@/_client/pages";
+
 
 export default async function ApisPage() {
   const templates = await models.templates.list();
-
   return (
     <>
       <Header title="API管理">

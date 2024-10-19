@@ -1,7 +1,7 @@
 import Button from "@/_client/atoms/Button";
 import Form from "@/_client/atoms/Form";
 import TextInput from "@/_client/atoms/TextInput";
-import actions from "@/_server/actions";
+import actions from "@/_server";
 
 export default async function CreatePage() {
   return (

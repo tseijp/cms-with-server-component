@@ -1,6 +1,6 @@
 "use server";
 
-import models from "@/_server/models";
+import models from "./models";
 
 const MIME_TYPES = new Set([
   "image/jpeg",

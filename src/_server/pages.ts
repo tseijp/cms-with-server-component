@@ -1,6 +1,6 @@
 "use server";
 
-import models from "@/_server/models";
+import models from "./models";
 import { randomUUID } from "crypto";
 import { listStructures } from "@/utils";
 
@@ -78,7 +78,6 @@ export async function remove(api: string) {
       ...pages.map((page) => models.pages.hardRemove(page.pathname)),
       ...trashes.map((page) => models.pages.hardRemove(page.pathname)),
     ]);
-    // revalidatePath(`/apis/`);
     const redirect = `/apis/${api}`;
     return { statusCode: 200, message: "", redirect };
   } catch (error) {
@@ -92,8 +91,6 @@ export async function allRemove(pathname: string, isDeleted = false) {
     if (isDeleted) {
       await models.pages.hardRemove(pathname);
     } else await models.pages.softRemove(pathname);
-
-    // revalidatePath("/apis");
     return { statusCode: 200 };
   } catch (error) {
     console.error(error);

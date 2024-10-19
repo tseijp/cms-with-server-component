@@ -1,6 +1,6 @@
 import { LinkButton } from "@/_client/atoms/Button";
 import Header from "@/_client/atoms/Header";
-import PagesTable from "@/_client/pages";
+import PagesTable from "@/_client/table";
 
 interface Props {
   api: string;

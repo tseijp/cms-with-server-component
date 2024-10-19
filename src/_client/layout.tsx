@@ -1,6 +1,5 @@
 "use client";
 
-// import { usePathname } from "next/navigation";
 import React from "react";
 
 interface WrapLinksProps {
@@ -18,7 +17,7 @@ export function WrapLinks(props: WrapLinksProps) {
   );
 }
 
-function MenuIcon(props: { active: boolean }) {
+function MenuIcon(props: { active?: boolean | undefined }) {
   const { active, ...spanProps } = props;
   return (
     <span className="mr-2 text-white" {...spanProps}>
@@ -42,14 +41,13 @@ function MenuIcon(props: { active: boolean }) {
 interface MenuLinkProps extends React.HTMLProps<HTMLAnchorElement> {
   children?: string;
   href: string;
+  active?: boolean | undefined;
 }
 
 export function MenuLink(props: MenuLinkProps) {
-  const { children, className, ...linkProps } = props;
-  const active = true; // usePathname().includes(`${props.href}`);
-  const activeClasses = ""; // active ? "font-bold text-[#563BFE] bg-[#E9E7FD]" : "";
-  const baseClasses = "rounded text-sm p-2";
-
+  const { children, className, active, ...linkProps } = props;
+  const activeClasses = active ? "font-bold text-[#563BFE] bg-[#E9E7FD]" : "";
+  const baseClasses = "rounded text-sm p-2 flex items-center";
   return (
     <a
       {...linkProps}

@@ -3,19 +3,17 @@ import "../styles.css";
 import React from "react";
 import models from "@/_server/models";
 import { MenuLink, WrapLinks } from "@/_client/layout";
-import { one } from "@/_server";
 
-type RootLayoutProps = { children: React.ReactNode };
+interface RootLayoutProps {
+  children: React.ReactNode;
+  path: string;
+}
 
 export default async function RootLayout(props: RootLayoutProps) {
-  const { children } = props;
-  const data = await getData();
+  const { children, path } = props;
   const templates = await models.templates.list();
-
   return (
     <div>
-      <meta name="description" content={data.description} />
-      <link rel="icon" type="image/png" href={data.icon} />
       <main>
         <img
           src="https://placehold.co/40x40"
@@ -41,6 +39,7 @@ export default async function RootLayout(props: RootLayoutProps) {
                 <MenuLink
                   key={template.pathname}
                   href={"/apis/" + template.pathname}
+                  active={"/apis/" + template.pathname === path}
                 >
                   {template.pathname}
                 </MenuLink>
@@ -61,14 +60,6 @@ export default async function RootLayout(props: RootLayoutProps) {
   );
 }
 
-const getData = async () => {
-  const data = {
-    description: "An internet website!",
-    icon: "/images/favicon.png",
-  };
-
-  return data;
-};
 
 export const getConfig = async () => {
   return {

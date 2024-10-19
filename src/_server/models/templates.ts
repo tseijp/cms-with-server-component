@@ -1,4 +1,4 @@
-import db, { all, one, run } from "..";
+import db, { all, one, run } from "./utils";
 
 export interface Templates {
   pathname: string;

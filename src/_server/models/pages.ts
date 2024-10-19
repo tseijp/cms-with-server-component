@@ -1,6 +1,5 @@
-import * as models from ".";
 import * as modelsItems from "./items";
-import db, { all, one, run } from "..";
+import db, { all, one, run } from "./utils";
 
 export interface Pages {
   pathname: string;
@@ -89,7 +88,6 @@ export const softRemove = async (pathname: string) => {
 
 export const hardRemove = async (pathname: string) => {
   const items = await modelsItems.listByPathname(pathname);
-  console.log(items);
-  Promise.all([...items.map((item) => models.items.remove(item.id))]);
+  Promise.all([...items.map((item) => modelsItems.remove(item.id))]);
   return await run("DELETE FROM pages WHERE pathname = ?", pathname);
 };

@@ -1,6 +1,5 @@
 "use client";
 
-// import { useRouter } from "next/navigation";
 import React from "react";
 
 interface Props extends React.HTMLProps<HTMLTableElement> {
@@ -54,7 +53,6 @@ interface LinkedTableRowProps extends React.HTMLProps<HTMLTableRowElement> {
 
 export function LinkedTableRow(props: LinkedTableRowProps) {
   const { children, className, href, active, disable, ...other } = props;
-  // const router = useRouter();
   const baseClasses = "flex";
   const activeClasses = disable
     ? "hover:bg-white"
@@ -64,7 +62,6 @@ export function LinkedTableRow(props: LinkedTableRowProps) {
 
   const handleClick = () => {
     if (disable) return;
-    // router.push(href);
     window.location.pathname = href;
   };
 

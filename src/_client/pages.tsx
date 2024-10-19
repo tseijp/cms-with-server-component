@@ -1,91 +1,107 @@
-import Datetime from "./atoms/DateTime";
-import Dropdown from "./atoms/Dropdown";
-import Table from "./atoms/Table";
-import models from "@/_server/models";
-import {
-  Checkbox,
-  CheckedSwitch,
-  DeleteAllButton,
-  DeleteButton,
-  TableRow,
-} from "./apis";
+"use client";
 
-interface Props {
-  api: string;
-  isDeleted?: boolean;
+import { allRemove } from "@/_server/pages";
+import Button from "./atoms/Button";
+import Dropdown from "./atoms/Dropdown";
+import { LinkedTableRow } from "./atoms/Table";
+import React, { useEffect, useSyncExternalStore } from "react";
+import actions from "@/_server";
+
+interface DeleteButtonProps extends React.HTMLProps<HTMLButtonElement> {
+  pathname: string;
+  isDeleted?: boolean | undefined;
 }
 
-export default async function PagesTable(props: Props) {
-  const { api, isDeleted } = props;
-  const pages = isDeleted
-    ? await models.pages.listTrashByTemplate(api)
-    : await models.pages.listByTemplate(api);
+export function DeleteButton(props: DeleteButtonProps) {
+  const { pathname, isDeleted, ...buttonProps } = props;
+
+  const handleClick = async () => {
+    if (!window.confirm("削除しますか？")) return;
+    const res = await actions.pages.allRemove(pathname, isDeleted);
+    if (res.statusCode !== 200) return;
+    alert("削除しました");
+    window.location.reload();
+  };
+
+  return <button {...buttonProps} type="button" onClick={handleClick} />;
+}
+
+/**
+ * with checked store
+ */
+interface DeleteAllButtonProps extends React.HTMLProps<HTMLButtonElement> {
+  isDeleted?: boolean | undefined;
+}
+
+export function DeleteAllButton(props: DeleteAllButtonProps) {
+  const { isDeleted, ...buttonProps } = props;
+
+  const handleClick = async () => {
+    if (!window.confirm("全て削除しますか？")) return;
+    await Promise.all([...set].map((path) => allRemove(path, isDeleted)));
+    alert("削除しました");
+    window.location.reload();
+    set.clear();
+    listeners.forEach((f) => f());
+  };
+
+  return <button {...buttonProps} type="button" onClick={handleClick} />;
+}
+
+const listeners = new Set<Function>();
+const set = new Set<string>();
+const get = () => set.size;
+const sub = (update = () => {}) => {
+  listeners.add(update);
+  return () => {
+    listeners.delete(update);
+  };
+};
+
+export function Checkbox(props: { pathname: string | string[] }) {
+  let { pathname } = props;
+  if (!Array.isArray(pathname)) pathname = [pathname];
+
+  const handleClick = (e: React.MouseEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) pathname.forEach((p) => set.add(p));
+    else pathname.forEach((p) => set.delete(p));
+    listeners.forEach((f) => f());
+  };
+
   return (
-    <>
-      <div className="h-[72px] px-6 pt-4 text-[14px]">
-        <CheckedSwitch pageLen={pages.length}>
-          <div className="py-2 text-[14px]">
-            <DeleteAllButton className="px-4 py-2" isDeleted={isDeleted}>
-              コンテンツを{isDeleted ? "完全に" : ""}削除する
-            </DeleteAllButton>
-          </div>
-        </CheckedSwitch>
-      </div>
-      <Table checkbox className="px-10 py-4">
-        <tr className="flex border-bottom border-[#E5E5F2]">
-          <th className="firstChild">
-            <Checkbox pathname={pages.map((page) => page.pathname)} />
-          </th>
-          <th>ステータス</th>
-          <th>エンドポイント</th>
-          <th>作成日</th>
-          <th>更新日</th>
-          <th></th>
-        </tr>
-        {pages.map((page) => (
-          <TableRow
-            key={page.pathname}
-            href={`/apis/${api}/${page.pathname}`}
-            className="flex hover:bg-[#F2FCFF] cursor-pointer"
-          >
-            <td className="firstChild">
-              <Checkbox pathname={page.pathname} />
-            </td>
-            <td>
-              <span
-                className={`w-3 h-3 mr-2 rounded-full ${
-                  page.publish_at ? "bg-[#27DC44]" : "bg-[#02C1F7]"
-                }`}
-              />
-              {page.publish_at ? "公開" : "非公開"}
-            </td>
-            <td>{page.pathname}</td>
-            <td>
-              <Datetime date={page.created_at} />
-            </td>
-            <td>
-              <Datetime datetime={page.updated_at} />
-            </td>
-            <td>
-              <Dropdown className="w-6 h-6 grid place-content-center">
-                <span className="kebabu" />
-                <div className="py-2 text-[14px]">
-                  <div className="px-4 py-2">
-                    コンテンツをコピーして新規作成
-                  </div>
-                  <DeleteButton
-                    isDeleted={isDeleted}
-                    className="px-4 py-2 w-full text-left hover:bg- hover:bg-[#F2FCFF]"
-                    pathname={page.pathname}
-                  >
-                    コンテンツを{isDeleted ? "完全に" : ""}削除
-                  </DeleteButton>
-                </div>
-              </Dropdown>
-            </td>
-          </TableRow>
-        ))}
-      </Table>
-    </>
+    <input onClick={handleClick} onChange={handleChange} type="checkbox" />
   );
+}
+
+export function CheckedSwitch(props: {
+  children: React.ReactNode;
+  pageLen: number;
+}) {
+  const { children, pageLen } = props;
+
+  useSyncExternalStore(sub, get, get);
+  useEffect(() => set.clear(), []); // clear if change page
+
+  if (set.size <= 0)
+    return <p className="text-[#686889]">{pageLen} 件を表示</p>;
+  return (
+    <Dropdown leftside>
+      <Button className="relative pr-10 border border-[#563BFF] text-[#563BFF]">
+        <span>
+          <span>{set.size} 件を選択中</span>
+          <span className="absolute right-2 down" />
+        </span>
+      </Button>
+      {children}
+    </Dropdown>
+  );
+}
+
+export function TableRow(props: React.ComponentProps<typeof LinkedTableRow>) {
+  useSyncExternalStore(sub, get, get);
+  return <LinkedTableRow disable={set.size > 0} {...props} />;
 }

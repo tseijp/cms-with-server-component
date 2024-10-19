@@ -1,6 +1,6 @@
 "use server";
 
-import models from "@/_server/models";
+import models from "./models";
 
 /**
  * public method

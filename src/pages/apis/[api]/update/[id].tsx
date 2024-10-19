@@ -1,4 +1,4 @@
-import actions from "@/_server/actions";
+import actions from "@/_server";
 import Button from "@/_client/atoms/Button";
 import Header from "@/_client/atoms/Header";
 import TextInput from "@/_client/atoms/TextInput";
@@ -10,17 +10,17 @@ import Form from "@/_client/atoms/Form";
 
 interface Props {
   api: string;
-  update: string;
+  id: string;
 }
 
 export default async function CMSApisIdUpdatePage(props: Props) {
-  const { api, update } = props;
+  const { api, id } = props;
 
   const template = await models.templates.get(api);
-  if (!template) return { statusCode: 200, redirect: `/cms/apis` };
+  if (!template) return "Template Not Found";
 
-  const page = await models.pages.get(update);
-  if (!page) return { statusCode: 500, redirect: `/cms/apis/${api}` };
+  const page = await models.pages.get(id);
+  if (!page) return "Pages Not Found";
 
   const structures = listStructures(template.structures);
   const items = await models.items.listByPathname(page.pathname);
@@ -32,8 +32,8 @@ export default async function CMSApisIdUpdatePage(props: Props) {
   };
 
   return (
-    <Form _action={actions.pages.update.bind(null, api, update)}>
-      <Header title={api} setting="API 設定" href={`/cms/apis/${api}/setting`}>
+    <Form _action={actions.pages.update.bind(null, api, id)}>
+      <Header title={api} setting="API 設定" href={`/apis/${api}/setting`}>
         {/* <Button className="text-[#563BFE] border border-[#563BFE]">
             下書きを保存
           </Button> */}

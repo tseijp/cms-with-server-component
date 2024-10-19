@@ -1,10 +1,10 @@
-import actions from "@/_server/actions";
+import actions from "@/_server";
 import Button from "@/_client/atoms/Button";
 import Header from "@/_client/atoms/Header";
 import Modal from "@/_client/atoms/Modal";
 import Title from "@/_client/atoms/Title";
 import { ConditionalDelete, UpdateStructure } from "@/_client/setting";
-import PagesTable from "@/_client/pages";
+import PagesTable from "@/_client/table";
 import models from "@/_server/models";
 import { listStructures } from "_articles/utils";
 import Form from "@/_client/atoms/Form";
@@ -16,7 +16,7 @@ interface Props {
 export default async function CMSApisIdSettingPage(props: Props) {
   const { api } = props;
   const template = await models.templates.get(api);
-  if (!template) return;
+  if (!template) return "Template Not Found";
 
   const pages = await models.pages.listByTemplate(api);
   const structures = listStructures(template.structures);
@@ -24,7 +24,12 @@ export default async function CMSApisIdSettingPage(props: Props) {
   return (
     <>
       <Form _action={actions.apis.update.bind(null, api)}>
-        <Header title={api} href={`/apis/${api}/setting`} setting="API 設定">
+        <Header
+          active
+          title={api}
+          href={`/apis/${api}/setting`}
+          setting="API 設定"
+        >
           <div className="flex justify-end w-full gap-2.5">
             <Button type="submit" className="text-white bg-[#FB773F]">
               更新
