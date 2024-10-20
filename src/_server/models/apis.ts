@@ -3,7 +3,6 @@ import db, { all, one, run } from "./utils";
 export interface Apis {
   pathname: string;
   title?: string | null;
-  structures?: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -20,7 +19,6 @@ export const init = () => {
     CREATE TABLE apis (
       pathname TEXT PRIMARY KEY,
       title TEXT DEFAULT NULL,
-      structures JSON DEFAULT NULL,
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now'))
     );
@@ -42,9 +40,8 @@ export const list = async () => {
 // Create a new api
 export const create = async (input: Apis) => {
   return await run(
-    "INSERT INTO apis (title, structures, pathname) VALUES (?, ?, ?)",
+    "INSERT INTO apis (title, pathname) VALUES (?, ?)",
     input.title ?? null,
-    input.structures ?? null,
     input.pathname,
   );
 };
@@ -52,9 +49,8 @@ export const create = async (input: Apis) => {
 // Update api information
 export const update = async (input: Apis) => {
   return await run(
-    'UPDATE apis SET title = ?, structures = ?, updated_at = datetime("now") WHERE pathname = ?',
+    'UPDATE apis SET title = ?, updated_at = datetime("now") WHERE pathname = ?',
     input.title ?? null,
-    input.structures ?? null,
     input.pathname,
   );
 };

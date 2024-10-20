@@ -4,8 +4,8 @@ export interface ContentItems {
   id: number;
   pathname?: string | null;
   blob_id?: number | null;
-  structure_key?: string | null;
-  structure_value?: string | null;
+  index_id?: number | null;
+  content?: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -16,18 +16,19 @@ export const init = () => {
     CREATE TABLE items (
       id INTEGER PRIMARY KEY,
       blob_id INTEGER DEFAULT NULL,
+      index_id INTEGER DEFAULT NULL,
+      content TEXT DEFAULT NULL,
       pathname TEXT DEFAULT NULL,
-      structure_key TEXT DEFAULT NULL,
-      structure_value TEXT DEFAULT NULL,
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now')),
-      FOREIGN KEY (blob_id) REFERENCES blobs(id),
-      FOREIGN KEY (pathname) REFERENCES pages(id)
+      FOREIGN KEY (id) REFERENCES blobs(id),
+      FOREIGN KEY (id) REFERENCES indexes(id),
+      FOREIGN KEY (id) REFERENCES pages(id)
     );
   `);
 };
 
-// Get text data from items (excluding logically deleted ones)
+// Get text data from items
 export const list = async () => {
   return await all<ContentItems[]>("SELECT * FROM items");
 };
@@ -46,21 +47,21 @@ export const get = async (id: number) => {
 // Create items for the page
 export const create = async (input: Omit<ContentItems, "id">) => {
   return await run(
-    "INSERT INTO items (pathname, structure_key, structure_value, blob_id) VALUES (?, ?, ?, ?)",
+    "INSERT INTO items (pathname, blob_id, index_id, content) VALUES (?, ?, ?, ?)",
     input.pathname ?? null,
-    input.structure_key ?? null,
-    input.structure_value ?? null,
-    input.blob_id ?? null
+    input.blob_id ?? null,
+    input.index_id ?? null,
+    input.content ?? null
   );
 };
 
 // Update a content_item
 export const update = async (input: ContentItems) => {
   return await run(
-    'UPDATE items SET structure_key = ?, structure_value = ?, blob_id = ?, updated_at = datetime("now") WHERE id = ?',
-    input.structure_key ?? null,
-    input.structure_value ?? null,
+    'UPDATE items SET blob_id = ?, index_id = ?, content = ?, updated_at = datetime("now") WHERE id = ?',
     input.blob_id ?? null,
+    input.index_id ?? null,
+    input.content ?? null,
     input.id
   );
 };

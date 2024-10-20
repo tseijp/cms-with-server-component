@@ -1,8 +1,8 @@
+import models, { initDb } from ".";
 import { TEST_CSV } from "./test.csv";
-import models, { initDb } from "@/_server/models";
 import { beforeAll, describe, expect, it } from "@jest/globals";
 
-interface Parsed {
+interface ParsedCSV {
   code: string;
   pref: string;
   city: string;
@@ -15,18 +15,16 @@ function* parseCSV() {
   for (const line of lines) {
     // 団体コード,都道府県名（漢字）,市区町村名（漢字）,都道府県名（カナ）,市区町村名（カナ）
     const [code, pref, city, pref_kana, city_kana] = line.split(",");
-    yield { code, pref, city, pref_kana, city_kana } as Parsed;
+    yield { code, pref, city, pref_kana, city_kana } as ParsedCSV;
   }
 }
 
-const STRUCTURES = [
-  { key: "pref", value: "", title: "都道府県名（漢字）" },
-  { key: "city", value: "", title: "市区町村名（漢字）" },
-  { key: "pref_kana", value: "", title: "都道府県名（カナ）" },
-  { key: "city_kana", value: "", title: "市区町村名（カナ）" },
+const INDEXES = [
+  { key: "pref", title: "都道府県名（漢字）" },
+  { key: "city", title: "市区町村名（漢字）" },
+  { key: "pref_kana", title: "都道府県名（カナ）" },
+  { key: "city_kana", title: "市区町村名（カナ）" },
 ];
-
-const structures = JSON.stringify(STRUCTURES);
 
 // 使用例:
 const test_csv = parseCSV();
@@ -37,31 +35,35 @@ beforeAll(() => {
 
 describe("Database Integration Tests", () => {
   it("create api and pages", async () => {
-    let api = "";
+    const cache = { pathname: "", pref: 0, city: 0, pref_kana: 0, city_cana: 0}
     for (const item of test_csv)
       if (item.city) {
         await Promise.all([
           models.pages.create({
             pathname: item.code,
             title: item.city ?? null,
-            api,
+            api: cache.pathname,
           }),
-          ...STRUCTURES.map(({ key }) =>
+          ...INDEXES.map(({ key }) =>
             models.items.create({
               pathname: item.code,
-              structure_key: key,
-              structure_value: (item as any)[key] ?? null,
+              index_id: (cache as any)[key],
+              content: (item as any)[key],
             })
           ),
         ]);
       } else {
-        // Create root page and api
-        api = item.code;
+        // Create api, indexes and root pages
+        cache.pathname = item.code;
         const items = { pathname: item.code, title: item.pref };
-        await Promise.all([
-          models.pages.create({ ...items, api }),
-          models.apis.create({ ...items, structures }),
+        const [pref, city, pref_kana, city_cana] = await Promise.all([
+          ...INDEXES.map(({ title }) =>
+            models.indexes.create({ api: item.code, title })
+          ),
+          models.apis.create(items),
+          models.pages.create(items),
         ]);
+        Object.assign(cache, { pref, city, pref_kana, city_cana });
       }
   });
 
@@ -78,7 +80,7 @@ describe("Database Integration Tests", () => {
     await models.apis.update({ pathname, title: "updated" });
     expect((await models.apis.get(pathname)).title).toBe("updated");
 
-    // Logically delete the api
+    // delete the api
     await models.apis.remove(pathname);
     expect(await models.apis.get(pathname)).toBeUndefined();
   });
@@ -119,6 +121,10 @@ describe("Database Integration Tests", () => {
     // Logically delete the page
     await models.pages.softRemove(pathname);
     expect(await models.pages.get(pathname)).not.toBeNull();
+
+    // delete ther page
+    await models.pages.hardRemove(pathname);
+    // @TODO expect
   });
 
   it("CRUD operations on items", async () => {
@@ -131,8 +137,8 @@ describe("Database Integration Tests", () => {
     expect(models.items.get(id)).toBeDefined();
 
     // Update the content item
-    await models.items.update({ id, structure_value: "Updated" });
-    expect((await models.items.get(id)).structure_value).toBe("Updated");
+    await models.items.update({ id, content: "Updated" });
+    expect((await models.items.get(id)).content).toBe("Updated");
 
     // Logically delete the content item
     await models.items.remove(id);
