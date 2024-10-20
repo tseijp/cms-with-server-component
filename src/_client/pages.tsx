@@ -1,11 +1,11 @@
 "use client";
 
-import { allRemove } from "@/_server/pages";
 import Button from "./atoms/Button";
 import Dropdown from "./atoms/Dropdown";
 import { LinkedTableRow } from "./atoms/Table";
-import React, { useEffect, useSyncExternalStore } from "react";
 import actions from "@/_server";
+import { allRemove } from "@/_server/pages";
+import React, { useEffect, useSyncExternalStore } from "react";
 
 interface DeleteButtonProps extends React.HTMLProps<HTMLButtonElement> {
   pathname: string;

@@ -11,7 +11,7 @@ export async function create(formData: FormData) {
     const pathname = formData.get("pathname") as string | null;
     if (!title || !pathname)
       throw new Error(`apis/create Error: no title or pathname`);
-    await models.templates.create({ title, pathname });
+    await models.apis.create({ title, pathname });
     const redirect = `/apis/${pathname}/setting`;
     return { statusCode: 200, redirect };
   } catch (error) {
@@ -30,11 +30,11 @@ export async function update(api: string, formData: FormData) {
     for (let i = 0; i < keys.length; i++)
       items.push({ key: keys[i], value: values[i], title: titles[i] });
 
-    const item = await models.templates.get(api);
-    if (!item) throw new Error(`settings Error: no ${api} templates`);
+    const item = await models.apis.get(api);
+    if (!item) throw new Error(`settings Error: no ${api} apis`);
 
     const structures = JSON.stringify(items);
-    models.templates.update({ ...item, structures });
+    models.apis.update({ ...item, structures });
 
     const redirect = `/apis/${api}`;
     return { statusCode: 200, redirect };
@@ -46,7 +46,7 @@ export async function update(api: string, formData: FormData) {
 
 export async function remove(api: string) {
   try {
-    await models.templates.remove(api);
+    await models.apis.remove(api);
     const redirect = `/apis`;
     return { statusCode: 200, redirect };
   } catch (error) {

@@ -1,0 +1,147 @@
+import models, { initDb } from ".";
+import { TEST_CSV } from "./test.csv";
+import { beforeAll, describe, expect, it } from "@jest/globals";
+
+interface ParsedCSV {
+  code: string;
+  pref: string;
+  city: string;
+  pref_kana: string;
+  city_kana: string;
+}
+
+function* parseCSV() {
+  const lines = TEST_CSV.split("\n");
+  for (const line of lines) {
+    // 団体コード,都道府県名（漢字）,市区町村名（漢字）,都道府県名（カナ）,市区町村名（カナ）
+    const [code, pref, city, pref_kana, city_kana] = line.split(",");
+    yield { code, pref, city, pref_kana, city_kana } as ParsedCSV;
+  }
+}
+
+const INDEXES = [
+  { key: "pref", title: "都道府県名（漢字）" },
+  { key: "city", title: "市区町村名（漢字）" },
+  { key: "pref_kana", title: "都道府県名（カナ）" },
+  { key: "city_kana", title: "市区町村名（カナ）" },
+];
+
+// 使用例:
+const test_csv = parseCSV();
+
+beforeAll(() => {
+  initDb();
+});
+
+describe("Database Integration Tests", () => {
+  it("create api and pages", async () => {
+    const cache = { pathname: "", pref: 0, city: 0, pref_kana: 0, city_cana: 0}
+    for (const item of test_csv)
+      if (item.city) {
+        await Promise.all([
+          models.pages.create({
+            pathname: item.code,
+            title: item.city ?? null,
+            api: cache.pathname,
+          }),
+          ...INDEXES.map(({ key }) =>
+            models.items.create({
+              pathname: item.code,
+              index_id: (cache as any)[key],
+              content: (item as any)[key],
+            })
+          ),
+        ]);
+      } else {
+        // Create api, indexes and root pages
+        cache.pathname = item.code;
+        const items = { pathname: item.code, title: item.pref };
+        const [pref, city, pref_kana, city_cana] = await Promise.all([
+          ...INDEXES.map(({ title }) =>
+            models.indexes.create({ api: item.code, title })
+          ),
+          models.apis.create(items),
+          models.pages.create(items),
+        ]);
+        Object.assign(cache, { pref, city, pref_kana, city_cana });
+      }
+  });
+
+  /**
+   * CRUD operations
+   */
+  it("CRUD operations on apis", async () => {
+    // Create a new api
+    const pathname = "test_api";
+    await models.apis.create({ pathname });
+    expect(await models.apis.get(pathname)).toBeDefined();
+
+    // Update the api
+    await models.apis.update({ pathname, title: "updated" });
+    expect((await models.apis.get(pathname)).title).toBe("updated");
+
+    // delete the api
+    await models.apis.remove(pathname);
+    expect(await models.apis.get(pathname)).toBeUndefined();
+  });
+
+  it("CRUD operations on blobs", async () => {
+    // Create a blob
+    let file_data = "image_data";
+    const fileInput = {
+      file_name: "image.jpg",
+      file_type: "image/jpeg",
+      file_size: 1024 * 1024,
+    };
+
+    // Create the blob
+    const id = await models.blobs.create({ file_data, ...fileInput });
+    expect(await models.blobs.get(id)).toBeDefined();
+
+    // Update the blob
+    file_data = "Updated";
+    await models.blobs.update({ file_data, ...fileInput, id });
+    expect((await models.blobs.get(id)).file_data).toBe("Updated");
+
+    // Delete the blob
+    await models.blobs.remove(id);
+    expect(await models.blobs.get(id)).toBeUndefined();
+  });
+
+  it("CRUD operations on pages", async () => {
+    // Create a page
+    const pathname = "test_page";
+    await models.pages.create({ pathname });
+    expect(await models.pages.get(pathname)).toBeDefined();
+
+    // Update the page
+    await models.pages.update({ pathname, title: "Updated" });
+    expect((await models.pages.get(pathname)).title).toBe("Updated");
+
+    // Logically delete the page
+    await models.pages.softRemove(pathname);
+    expect(await models.pages.get(pathname)).not.toBeNull();
+
+    // delete ther page
+    await models.pages.hardRemove(pathname);
+    // @TODO expect
+  });
+
+  it("CRUD operations on items", async () => {
+    // Create a page
+    const pathname = "/tmp";
+    await models.pages.create({ pathname });
+
+    // Create a content item
+    const id = await models.items.create({ pathname });
+    expect(models.items.get(id)).toBeDefined();
+
+    // Update the content item
+    await models.items.update({ id, content: "Updated" });
+    expect((await models.items.get(id)).content).toBe("Updated");
+
+    // Logically delete the content item
+    await models.items.remove(id);
+    expect(await models.items.get(id)).not.toBeNull();
+  });
+});

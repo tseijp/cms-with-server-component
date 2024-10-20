@@ -1,6 +1,6 @@
-import actions from "@/_server";
-import { DeleteButton, FilePreview, UploadButton } from "@/_client/media";
 import Datetime from "@/_client/atoms/DateTime";
+import { DeleteButton, FilePreview, UploadButton } from "@/_client/media";
+import actions from "@/_server";
 import models from "@/_server/models";
 
 interface Props {
@@ -32,13 +32,13 @@ export default async function CMSMediaPage(props: Props) {
       </div>
       <div className="fixed right-10 bottom-10 flex gap-4">
         <UploadButton
-          _action={actions.media.update.bind(null, blob.id)}
+          _action={actions.blobs.update.bind(null, blob.id)}
           className="w-[162px] h-12 border border-[#563BFF] text-[#563BFF] hover:opacity-50"
         >
           再アップロード
         </UploadButton>
         <DeleteButton
-          _action={actions.media.remove.bind(null, blob.id)}
+          _action={actions.blobs.remove.bind(null, blob.id)}
           blobId={blob.id}
           className="w-[162px] h-12 border border-[#DC2647] text-[#DC2647] hover:opacity-50"
         >

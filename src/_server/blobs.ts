@@ -1,14 +1,7 @@
 "use server";
 
 import models from "./models";
-
-const MIME_TYPES = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/svg+xml",
-  "application/pdf",
-  "text/html",
-]);
+import { SUPPORT_MIME_TYPES } from "@/_utils";
 
 /**
  * private method
@@ -19,7 +12,7 @@ async function createInput(formData: FormData) {
   if (!file) throw new Error(`create blob Error: no such file found`);
   if (!(file instanceof File))
     throw new Error(`create blob Error: formData file is not File`);
-  if (!MIME_TYPES.has(file.type))
+  if (!SUPPORT_MIME_TYPES.has(file.type))
     throw new Error(`create blob Error: Unsupported file type`);
 
   const buffer = await file.arrayBuffer();

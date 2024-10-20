@@ -1,7 +1,6 @@
 import Datetime from "./atoms/DateTime";
 import Dropdown from "./atoms/Dropdown";
 import Table from "./atoms/Table";
-import models from "@/_server/models";
 import {
   Checkbox,
   CheckedSwitch,
@@ -9,6 +8,7 @@ import {
   DeleteButton,
   TableRow,
 } from "./pages";
+import models from "@/_server/models";
 
 interface Props {
   api: string;
@@ -18,8 +18,8 @@ interface Props {
 export default async function PagesTable(props: Props) {
   const { api, isDeleted } = props;
   const pages = isDeleted
-    ? await models.pages.listTrashByTemplate(api)
-    : await models.pages.listByTemplate(api);
+    ? await models.pages.listTrashByApi(api)
+    : await models.pages.listByApi(api);
   return (
     <>
       <div className="h-[72px] px-6 pt-4 text-[14px]">
@@ -38,6 +38,7 @@ export default async function PagesTable(props: Props) {
           </th>
           <th>ステータス</th>
           <th>エンドポイント</th>
+          <th>名前</th>
           <th>作成日</th>
           <th>更新日</th>
           <th></th>
@@ -60,6 +61,7 @@ export default async function PagesTable(props: Props) {
               {page.publish_at ? "公開" : "非公開"}
             </td>
             <td>{page.pathname}</td>
+            <td>{page.title}</td>
             <td>
               <Datetime date={page.created_at} />
             </td>
