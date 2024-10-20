@@ -1,8 +1,8 @@
-import actions from "@/_server";
-import { FilePreview, UploadButton } from "@/_client/media";
 import Datetime from "@/_client/atoms/DateTime";
 import Header from "@/_client/atoms/Header";
 import Table, { LinkedTableRow } from "@/_client/atoms/Table";
+import { FilePreview, UploadButton } from "@/_client/media";
+import actions from "@/_server";
 import models from "@/_server/models";
 import React from "react";
 
@@ -23,7 +23,7 @@ export default async function MediaLayout(props: Props) {
         />
         <UploadButton
           plus
-          _action={actions.media.create}
+          _action={actions.blobs.create}
           className="text-white rounded bg-[#563BFE]"
         >
           アップロード

@@ -13,7 +13,7 @@ export default async function CreatePage() {
         _action={actions.apis.create}
         className="mx-auto p-10 max-w-[800px] flex flex-col rounded-lg bg-[#F8F9FD]"
       >
-        <TextInput name="title" title="API名" />
+        <TextInput name="title" title="API 名" />
         <TextInput name="pathname" title="エンドポイント" />
         <Button type="submit" className="mt-8 text-white rounded bg-[#563BFE]">
           作成

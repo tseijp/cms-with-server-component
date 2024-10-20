@@ -1,4 +1,4 @@
-import { Structure } from "@/_server/models/templates";
+import { Structure } from "@/_server/models/apis";
 
 export const listStructures = (structure?: string | null): Structure[] => {
   if (!structure) return [] as Structure[];
@@ -7,7 +7,7 @@ export const listStructures = (structure?: string | null): Structure[] => {
   return items;
 };
 
-const MIME_TYPES = new Set([
+export const SUPORT_MIME_TYPES = new Set([
   "image/jpeg",
   "image/png",
   "image/svg+xml",
@@ -21,7 +21,7 @@ export async function createInput(formData: FormData) {
   if (!file) throw new Error(`create blob Error: no such file found`);
   if (!(file instanceof File))
     throw new Error(`create blob Error: formData file is not File`);
-  if (!MIME_TYPES.has(file.type))
+  if (!SUPORT_MIME_TYPES.has(file.type))
     throw new Error(`create blob Error: Unsupported file type`);
 
   const buffer = await file.arrayBuffer();

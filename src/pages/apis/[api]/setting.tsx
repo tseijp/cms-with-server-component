@@ -1,13 +1,13 @@
-import actions from "@/_server";
 import Button from "@/_client/atoms/Button";
+import Form from "@/_client/atoms/Form";
 import Header from "@/_client/atoms/Header";
 import Modal from "@/_client/atoms/Modal";
 import Title from "@/_client/atoms/Title";
 import { ConditionalDelete, UpdateStructure } from "@/_client/setting";
 import PagesTable from "@/_client/table";
+import actions from "@/_server";
 import models from "@/_server/models";
-import { listStructures } from "_articles/utils";
-import Form from "@/_client/atoms/Form";
+import { listStructures } from "@/utils";
 
 interface Props {
   api: string;
@@ -15,11 +15,11 @@ interface Props {
 
 export default async function CMSApisIdSettingPage(props: Props) {
   const { api } = props;
-  const template = await models.templates.get(api);
-  if (!template) return "Template Not Found";
+  const Api = await models.apis.get(api);
+  if (!Api) return "Api Not Found";
 
-  const pages = await models.pages.listByTemplate(api);
-  const structures = listStructures(template.structures);
+  const pages = await models.pages.listByApi(api);
+  const structures = listStructures(Api.structures);
 
   return (
     <>
@@ -51,10 +51,10 @@ export default async function CMSApisIdSettingPage(props: Props) {
             コンテンツを完全に削除
           </Button>
           <Form
-            _action={actions.pages.remove.bind(null, template.pathname)}
+            _action={actions.pages.remove.bind(null, Api.pathname)}
             className="p-10"
           >
-            <ConditionalDelete value={template.pathname} />
+            <ConditionalDelete value={Api.pathname} />
           </Form>
         </Modal>
         <Modal small>
@@ -65,10 +65,10 @@ export default async function CMSApisIdSettingPage(props: Props) {
             API を完全に削除
           </Button>
           <Form
-            _action={actions.apis.remove.bind(null, template.pathname)}
+            _action={actions.apis.remove.bind(null, Api.pathname)}
             className="p-10"
           >
-            <ConditionalDelete value={template.pathname} />
+            <ConditionalDelete value={Api.pathname} />
           </Form>
         </Modal>
       </Title>

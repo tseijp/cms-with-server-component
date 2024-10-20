@@ -1,8 +1,8 @@
-import "./style.css";
 import "../styles.css";
-import React from "react";
-import models from "@/_server/models";
+import "./style.css";
 import { MenuLink, WrapLinks } from "@/_client/layout";
+import models from "@/_server/models";
+import React from "react";
 
 interface RootLayoutProps {
   children: React.ReactNode;
@@ -11,7 +11,7 @@ interface RootLayoutProps {
 
 export default async function RootLayout(props: RootLayoutProps) {
   const { children, path } = props;
-  const templates = await models.templates.list();
+  const apis = await models.apis.list();
   return (
     <div>
       <main>
@@ -30,18 +30,18 @@ export default async function RootLayout(props: RootLayoutProps) {
           height={32}
           className="fixed left-3 bottom-3 w-8 h-8 rounded-full bg-[#A8A8C5] max-lg:hidden"
         />
-        <div className="fixed ml-[60px] w-[200px] px-4 py-2 text-[#686889] max-lg:left-[-260px]">
+        <div className="absolute ml-[60px] w-[200px] px-4 py-2 text-[#686889] max-lg:left-[-260px]">
           <div className="font-bold pb-6 text-[#21213B]">Untitled</div>
           <WrapLinks title="コンテンツ">
-            {templates
+            {apis
               .sort((a, b) => (a.pathname < b.pathname ? -1 : 1))
-              .map((template) => (
+              .map((api) => (
                 <MenuLink
-                  key={template.pathname}
-                  href={"/apis/" + template.pathname}
-                  active={"/apis/" + template.pathname === path}
+                  key={api.pathname}
+                  href={"/apis/" + api.pathname}
+                  active={"/apis/" + api.pathname === path}
                 >
-                  {template.pathname}
+                  {api.title ?? api.pathname}
                 </MenuLink>
               ))}
             <a href="/apis/create" className="absolute right-4 text-[24px]">
@@ -59,7 +59,6 @@ export default async function RootLayout(props: RootLayoutProps) {
     </div>
   );
 }
-
 
 export const getConfig = async () => {
   return {

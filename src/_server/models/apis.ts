@@ -1,6 +1,6 @@
 import db, { all, one, run } from "./utils";
 
-export interface Templates {
+export interface Apis {
   pathname: string;
   title?: string | null;
   structures?: string | null;
@@ -15,9 +15,9 @@ export interface Structure {
 }
 
 export const init = () => {
-  db.run(/* SQL */ `DROP TABLE IF EXISTS templates`);
+  db.run(/* SQL */ `DROP TABLE IF EXISTS apis`);
   db.run(/* SQL */ `
-    CREATE TABLE templates (
+    CREATE TABLE apis (
       pathname TEXT PRIMARY KEY,
       title TEXT DEFAULT NULL,
       structures JSON DEFAULT NULL,
@@ -28,38 +28,38 @@ export const init = () => {
 };
 
 export const get = async (pathname: string) => {
-  return await one<Templates>(
-    "SELECT * FROM templates WHERE pathname = ?",
+  return await one<Apis>(
+    "SELECT * FROM apis WHERE pathname = ?",
     pathname,
   );
 };
 
-// List templates (excluding logically deleted ones)
+// List apis (excluding logically deleted ones)
 export const list = async () => {
-  return await all<Templates[]>("SELECT * FROM templates");
+  return await all<Apis[]>("SELECT * FROM apis");
 };
 
-// Create a new template
-export const create = async (input: Templates) => {
+// Create a new api
+export const create = async (input: Apis) => {
   return await run(
-    "INSERT INTO templates (title, structures, pathname) VALUES (?, ?, ?)",
+    "INSERT INTO apis (title, structures, pathname) VALUES (?, ?, ?)",
     input.title ?? null,
     input.structures ?? null,
     input.pathname,
   );
 };
 
-// Update template information
-export const update = async (input: Templates) => {
+// Update api information
+export const update = async (input: Apis) => {
   return await run(
-    'UPDATE templates SET title = ?, structures = ?, updated_at = datetime("now") WHERE pathname = ?',
+    'UPDATE apis SET title = ?, structures = ?, updated_at = datetime("now") WHERE pathname = ?',
     input.title ?? null,
     input.structures ?? null,
     input.pathname,
   );
 };
 
-// Logically delete a template
+// Logically delete a api
 export const remove = async (pathname: string) => {
-  return await run("DELETE FROM templates WHERE pathname = ?", pathname);
+  return await run("DELETE FROM apis WHERE pathname = ?", pathname);
 };

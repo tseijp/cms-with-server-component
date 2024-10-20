@@ -14,10 +14,10 @@ interface Props {
 export default async function CMSApisIdCreatePage(props: Props) {
   const { api } = props;
 
-  const template = await models.templates.get(api);
-  if (!template) return "Template Not Found";
+  const Api = await models.apis.get(api);
+  if (!Api) return "Api Not Found";
 
-  const structures = listStructures(template.structures);
+  const structures = listStructures(Api.structures);
 
   return (
     <Form _action={actions.pages.create.bind(null, api)}>

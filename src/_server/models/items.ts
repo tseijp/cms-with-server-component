@@ -4,8 +4,8 @@ export interface ContentItems {
   id: number;
   pathname?: string | null;
   blob_id?: number | null;
-  template_key?: string | null;
-  template_value?: string | null;
+  structure_key?: string | null;
+  structure_value?: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -17,8 +17,8 @@ export const init = () => {
       id INTEGER PRIMARY KEY,
       blob_id INTEGER DEFAULT NULL,
       pathname TEXT DEFAULT NULL,
-      template_key TEXT DEFAULT NULL,
-      template_value TEXT DEFAULT NULL,
+      structure_key TEXT DEFAULT NULL,
+      structure_value TEXT DEFAULT NULL,
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now')),
       FOREIGN KEY (blob_id) REFERENCES blobs(id),
@@ -46,22 +46,22 @@ export const get = async (id: number) => {
 // Create items for the page
 export const create = async (input: Omit<ContentItems, "id">) => {
   return await run(
-    "INSERT INTO items (pathname, template_key, template_value, blob_id) VALUES (?, ?, ?, ?)",
+    "INSERT INTO items (pathname, structure_key, structure_value, blob_id) VALUES (?, ?, ?, ?)",
     input.pathname ?? null,
-    input.template_key ?? null,
-    input.template_value ?? null,
-    input.blob_id ?? null,
+    input.structure_key ?? null,
+    input.structure_value ?? null,
+    input.blob_id ?? null
   );
 };
 
 // Update a content_item
 export const update = async (input: ContentItems) => {
   return await run(
-    'UPDATE items SET template_key = ?, template_value = ?, blob_id = ?, updated_at = datetime("now") WHERE id = ?',
-    input.template_key ?? null,
-    input.template_value ?? null,
+    'UPDATE items SET structure_key = ?, structure_value = ?, blob_id = ?, updated_at = datetime("now") WHERE id = ?',
+    input.structure_key ?? null,
+    input.structure_value ?? null,
     input.blob_id ?? null,
-    input.id,
+    input.id
   );
 };
 
