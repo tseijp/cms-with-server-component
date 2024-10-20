@@ -7,7 +7,7 @@ import { ConditionalDelete, UpdateStructure } from "@/_client/setting";
 import PagesTable from "@/_client/table";
 import actions from "@/_server";
 import models from "@/_server/models";
-import { listStructures } from "@/utils";
+import { listStructures } from "@/_utils";
 
 interface Props {
   api: string;

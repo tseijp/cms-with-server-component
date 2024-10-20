@@ -1,4 +1,3 @@
-import "../styles.css";
 import "./style.css";
 import { MenuLink, WrapLinks } from "@/_client/layout";
 import models from "@/_server/models";

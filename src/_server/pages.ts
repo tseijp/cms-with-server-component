@@ -1,7 +1,7 @@
 "use server";
 
 import models from "./models";
-import { listStructures } from "@/utils";
+import { listStructures } from "@/_utils";
 import { randomUUID } from "crypto";
 
 /**

@@ -7,7 +7,7 @@ export const listStructures = (structure?: string | null): Structure[] => {
   return items;
 };
 
-export const SUPORT_MIME_TYPES = new Set([
+export const SUPPORT_MIME_TYPES = new Set([
   "image/jpeg",
   "image/png",
   "image/svg+xml",
@@ -21,7 +21,7 @@ export async function createInput(formData: FormData) {
   if (!file) throw new Error(`create blob Error: no such file found`);
   if (!(file instanceof File))
     throw new Error(`create blob Error: formData file is not File`);
-  if (!SUPORT_MIME_TYPES.has(file.type))
+  if (!SUPPORT_MIME_TYPES.has(file.type))
     throw new Error(`create blob Error: Unsupported file type`);
 
   const buffer = await file.arrayBuffer();

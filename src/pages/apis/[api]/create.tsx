@@ -5,7 +5,7 @@ import TextInput from "@/_client/atoms/TextInput";
 import Title from "@/_client/atoms/Title";
 import actions from "@/_server";
 import models from "@/_server/models";
-import { listStructures } from "@/utils";
+import { listStructures } from "@/_utils";
 
 interface Props {
   api: string;
