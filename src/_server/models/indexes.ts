@@ -1,6 +1,6 @@
 import db, { all, one, run } from "./utils";
 
-export interface ContentIndexes {
+export interface Indexes {
   id: number;
   api: string;
   title?: string | null;
@@ -24,22 +24,22 @@ export const init = () => {
 
 // Get text data from indexes
 export const list = async () => {
-  return await all<ContentIndexes[]>("SELECT * FROM indexes");
+  return await all<Indexes[]>("SELECT * FROM indexes");
 };
 
-export const listByPathname = async (api: string) => {
-  return await all<ContentIndexes[]>(
+export const listByApi = async (api: string) => {
+  return await all<Indexes[]>(
     "SELECT * FROM indexes WHERE api = ?",
     api
   );
 };
 
 export const get = async (id: number) => {
-  return await one<ContentIndexes>("SELECT * FROM indexes WHERE id = ?", id);
+  return await one<Indexes>("SELECT * FROM indexes WHERE id = ?", id);
 };
 
 // Create indexes for the page
-export const create = async (input: Omit<ContentIndexes, "id">) => {
+export const create = async (input: Omit<Indexes, "id">) => {
   return await run(
     "INSERT INTO indexes (api, title) VALUES (?, ?)",
     input.api,
@@ -48,7 +48,7 @@ export const create = async (input: Omit<ContentIndexes, "id">) => {
 };
 
 // Update a content_item
-export const update = async (input: ContentIndexes) => {
+export const update = async (input: Indexes) => {
   return await run(
     'UPDATE indexes SET api = ?, title = ?, updated_at = datetime("now") WHERE id = ?',
     input.api ?? null,

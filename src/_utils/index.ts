@@ -1,12 +1,3 @@
-import { Structure } from "@/_server/models/apis";
-
-export const listStructures = (structure?: string | null): Structure[] => {
-  if (!structure) return [] as Structure[];
-  const items = JSON.parse(structure);
-  if (!Array.isArray(items)) return [] as Structure[];
-  return items;
-};
-
 export const SUPPORT_MIME_TYPES = new Set([
   "image/jpeg",
   "image/png",

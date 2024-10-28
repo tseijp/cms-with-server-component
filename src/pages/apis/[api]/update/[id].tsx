@@ -5,8 +5,6 @@ import TextInput from "@/_client/atoms/TextInput";
 import Title from "@/_client/atoms/Title";
 import actions from "@/_server";
 import models from "@/_server/models";
-import { Structure } from "@/_server/models/apis";
-import { listStructures } from "@/_utils";
 
 interface Props {
   api: string;
@@ -16,19 +14,21 @@ interface Props {
 export default async function CMSApisIdUpdatePage(props: Props) {
   const { api, id } = props;
 
-  const Api = await models.apis.get(api);
+  const [Api, indexes] = await Promise.all([
+    models.apis.get(api),
+    models.indexes.listByApi(api),
+  ]);
+
   if (!Api) return "Api Not Found";
 
   const page = await models.pages.get(id);
   if (!page) return "Pages Not Found";
 
-  const structures = listStructures(Api.structures);
   const items = await models.items.listByPathname(page.pathname);
 
-  const getValue = (structure: Structure) => {
-    const current = items.find((i) => i.structure_key === structure.key);
-    if (typeof current?.structure_value !== "string") return structure.value;
-    return current.structure_value;
+  const getValue = (id: number) => {
+    const current = items.find(({ index_id }) => index_id === id);
+    return current?.content ?? "";
   };
 
   return (
@@ -43,12 +43,12 @@ export default async function CMSApisIdUpdatePage(props: Props) {
         </Button>
       </Header>
       <Title title="コンテンツ">
-        {structures.map((item) => (
+        {indexes.map(({ id, title }) => (
           <TextInput
-            key={item.key}
-            name={item.key}
-            title={item.title}
-            defaultValue={getValue(item)}
+            key={id}
+            name={`id_${id}`}
+            title={title ?? ""}
+            defaultValue={getValue(id)}
           />
         ))}
       </Title>

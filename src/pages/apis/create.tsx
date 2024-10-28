@@ -14,7 +14,7 @@ export default async function CreatePage() {
         className="mx-auto p-10 max-w-[800px] flex flex-col rounded-lg bg-[#F8F9FD]"
       >
         <TextInput name="title" title="API 名" />
-        <TextInput name="pathname" title="エンドポイント" />
+        <TextInput name="api" title="エンドポイント" />
         <Button type="submit" className="mt-8 text-white rounded bg-[#563BFE]">
           作成
         </Button>

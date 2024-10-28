@@ -19,14 +19,13 @@ function* parseCSV() {
   }
 }
 
-const INDEXES = [
+const DEFAULT_INDEXES = [
   { key: "pref", title: "都道府県名（漢字）" },
   { key: "city", title: "市区町村名（漢字）" },
   { key: "pref_kana", title: "都道府県名（カナ）" },
   { key: "city_kana", title: "市区町村名（カナ）" },
 ];
 
-// 使用例:
 const test_csv = parseCSV();
 
 beforeAll(() => {
@@ -35,35 +34,36 @@ beforeAll(() => {
 
 describe("Database Integration Tests", () => {
   it("create api and pages", async () => {
-    const cache = { pathname: "", pref: 0, city: 0, pref_kana: 0, city_cana: 0}
+    let _item: ParsedCSV;
+    let cache = { pref: 0, city: 0, pref_kana: 0, city_kana: 0 };
     for (const item of test_csv)
-      if (item.city) {
+      if (!item.city) {
+        // Create api, indexes and root pages
+        _item = item;
+        const [pref, city, pref_kana, city_kana] = await Promise.all([
+          ...DEFAULT_INDEXES.map(({ title }) =>
+            models.indexes.create({ api: item.code, title })
+          ),
+          models.apis.create({ api: item.code, title: item.pref }),
+          models.pages.create({ pathname: item.code, title: item.pref }),
+        ]);
+        Object.assign(cache, { pref, city, pref_kana, city_kana });
+      } else {
+        // create pages and indexes
         await Promise.all([
           models.pages.create({
             pathname: item.code,
             title: item.city ?? null,
-            api: cache.pathname,
+            api: _item!.code,
           }),
-          ...INDEXES.map(({ key }) =>
+          ...DEFAULT_INDEXES.map(({ key }) =>
             models.items.create({
               pathname: item.code,
-              index_id: (cache as any)[key],
+              index_id: (cache as any)[key], // ??
               content: (item as any)[key],
             })
           ),
         ]);
-      } else {
-        // Create api, indexes and root pages
-        cache.pathname = item.code;
-        const items = { pathname: item.code, title: item.pref };
-        const [pref, city, pref_kana, city_cana] = await Promise.all([
-          ...INDEXES.map(({ title }) =>
-            models.indexes.create({ api: item.code, title })
-          ),
-          models.apis.create(items),
-          models.pages.create(items),
-        ]);
-        Object.assign(cache, { pref, city, pref_kana, city_cana });
       }
   });
 
@@ -72,17 +72,17 @@ describe("Database Integration Tests", () => {
    */
   it("CRUD operations on apis", async () => {
     // Create a new api
-    const pathname = "test_api";
-    await models.apis.create({ pathname });
-    expect(await models.apis.get(pathname)).toBeDefined();
+    const api = "test_api";
+    await models.apis.create({ api });
+    expect(await models.apis.get(api)).toBeDefined();
 
     // Update the api
-    await models.apis.update({ pathname, title: "updated" });
-    expect((await models.apis.get(pathname)).title).toBe("updated");
+    await models.apis.update({ api, title: "updated" });
+    expect((await models.apis.get(api)).title).toBe("updated");
 
     // delete the api
-    await models.apis.remove(pathname);
-    expect(await models.apis.get(pathname)).toBeUndefined();
+    await models.apis.remove(api);
+    expect(await models.apis.get(api)).toBeUndefined();
   });
 
   it("CRUD operations on blobs", async () => {

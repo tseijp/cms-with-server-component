@@ -3,20 +3,15 @@
 import Border from "./atoms/Border";
 import Button from "./atoms/Button";
 import TextInput from "./atoms/TextInput";
+import { Indexes } from "@/_server/models/indexes";
 import React, { Fragment, useState } from "react";
 
-interface Item {
-  key?: string;
-  title?: string;
-  value?: string;
-}
-
 interface Props {
-  items: Item[];
+  indexes: Partial<Indexes>[];
 }
 
 export function UpdateStructure(props: Props) {
-  const [items, set] = useState(props.items);
+  const [items, set] = useState(props.indexes);
 
   const handleClick = () => {
     set((p) => [...p, {}]);
@@ -41,20 +36,10 @@ export function UpdateStructure(props: Props) {
               削除
             </button>
             <div className="flex flex-col w-full">
-              <TextInput title="Key" name="key" defaultValue={item.key} />
-            </div>
-            <div className="flex flex-col w-full">
               <TextInput
                 title="表示名"
                 name="title"
-                defaultValue={item.title}
-              />
-            </div>
-            <div className="flex flex-col w-full">
-              <TextInput
-                title="デフォルト値"
-                name="value"
-                defaultValue={item.value}
+                defaultValue={item.title ?? ""}
               />
             </div>
           </div>

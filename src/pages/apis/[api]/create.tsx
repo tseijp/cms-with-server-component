@@ -5,7 +5,6 @@ import TextInput from "@/_client/atoms/TextInput";
 import Title from "@/_client/atoms/Title";
 import actions from "@/_server";
 import models from "@/_server/models";
-import { listStructures } from "@/_utils";
 
 interface Props {
   api: string;
@@ -14,10 +13,12 @@ interface Props {
 export default async function CMSApisIdCreatePage(props: Props) {
   const { api } = props;
 
-  const Api = await models.apis.get(api);
-  if (!Api) return "Api Not Found";
+  const [Api, indexes] = await Promise.all([
+    models.apis.get(api),
+    models.indexes.listByApi(api),
+  ]);
 
-  const structures = listStructures(Api.structures);
+  if (!Api) return "Api Not Found";
 
   return (
     <Form _action={actions.pages.create.bind(null, api)}>
@@ -33,13 +34,8 @@ export default async function CMSApisIdCreatePage(props: Props) {
       </Title>
       */}
       <Title title="コンテンツ">
-        {structures.map((item) => (
-          <TextInput
-            key={item.key}
-            name={item.key}
-            title={item.title}
-            defaultValue={item.value}
-          />
+        {indexes.map(({ id, title }) => (
+          <TextInput key={id} name={`id_${id}`} title={title ?? ""} />
         ))}
       </Title>
     </Form>

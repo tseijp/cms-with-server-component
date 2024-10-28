@@ -23,7 +23,7 @@ export default async function RootLayout(props: RootLayoutProps) {
           className="fixed top-[68px] w-[60px] text-white text-[28px] max-lg:hidden"
         />
         <img
-          src="/admin/ungra.svg"
+          src="/images/ungra.svg"
           alt={"😺"}
           width={32}
           height={32}
@@ -33,14 +33,14 @@ export default async function RootLayout(props: RootLayoutProps) {
           <div className="font-bold pb-6 text-[#21213B]">Untitled</div>
           <WrapLinks title="コンテンツ">
             {apis
-              .sort((a, b) => (a.pathname < b.pathname ? -1 : 1))
+              .sort((a, b) => (a.api < b.api ? -1 : 1))
               .map((api) => (
                 <MenuLink
-                  key={api.pathname}
-                  href={"/apis/" + api.pathname}
-                  active={"/apis/" + api.pathname === path}
+                  key={api.api}
+                  href={"/apis/" + api.api}
+                  active={"/apis/" + api.api === path}
                 >
-                  {api.title ?? api.pathname}
+                  {api.title ?? api.api}
                 </MenuLink>
               ))}
             <a href="/apis/create" className="absolute right-4 text-[24px]">
