@@ -1,6 +1,6 @@
 import * as apis from "./apis";
 import * as blobs from "./blobs";
-import * as indexes from "./indexes";
+import * as forms from "./forms";
 import * as items from "./items";
 import * as pages from "./pages";
 import db from "./utils";
@@ -10,7 +10,7 @@ export function initDb() {
   db.serialize(() => {
     apis.init();
     blobs.init();
-    indexes.init();
+    forms.init();
     items.init();
     pages.init();
   });
@@ -19,7 +19,7 @@ export function initDb() {
 export default {
   apis,
   blobs,
-  indexes,
+  forms,
   items,
   pages,
 };

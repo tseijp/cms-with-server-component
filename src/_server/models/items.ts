@@ -4,7 +4,7 @@ export interface ContentItems {
   id: number;
   pathname?: string | null;
   blob_id?: number | null;
-  index_id?: number | null;
+  form_id?: number | null;
   content?: string | null;
   created_at?: string;
   updated_at?: string;
@@ -16,13 +16,13 @@ export const init = () => {
     CREATE TABLE items (
       id INTEGER PRIMARY KEY,
       blob_id INTEGER DEFAULT NULL,
-      index_id INTEGER DEFAULT NULL,
+      form_id INTEGER DEFAULT NULL,
       content TEXT DEFAULT NULL,
       pathname TEXT DEFAULT NULL,
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now')),
       FOREIGN KEY (id) REFERENCES blobs(id),
-      FOREIGN KEY (id) REFERENCES indexes(id),
+      FOREIGN KEY (id) REFERENCES forms(id),
       FOREIGN KEY (id) REFERENCES pages(id)
     );
   `);
@@ -47,10 +47,10 @@ export const get = async (id: number) => {
 // Create items for the page
 export const create = async (input: Omit<ContentItems, "id">) => {
   return await run(
-    "INSERT INTO items (pathname, blob_id, index_id, content) VALUES (?, ?, ?, ?)",
+    "INSERT INTO items (pathname, blob_id, form_id, content) VALUES (?, ?, ?, ?)",
     input.pathname ?? null,
     input.blob_id ?? null,
-    input.index_id ?? null,
+    input.form_id ?? null,
     input.content ?? null
   );
 };
@@ -58,9 +58,9 @@ export const create = async (input: Omit<ContentItems, "id">) => {
 // Update a content_item
 export const update = async (input: ContentItems) => {
   return await run(
-    'UPDATE items SET blob_id = ?, index_id = ?, content = ?, updated_at = datetime("now") WHERE id = ?',
+    'UPDATE items SET blob_id = ?, form_id = ?, content = ?, updated_at = datetime("now") WHERE id = ?',
     input.blob_id ?? null,
-    input.index_id ?? null,
+    input.form_id ?? null,
     input.content ?? null,
     input.id
   );

@@ -19,7 +19,7 @@ function* parseCSV() {
   }
 }
 
-const DEFAULT_INDEXES = [
+const DEFAULT_FORMS = [
   { key: "pref", title: "都道府県名（漢字）" },
   { key: "city", title: "市区町村名（漢字）" },
   { key: "pref_kana", title: "都道府県名（カナ）" },
@@ -38,28 +38,28 @@ describe("Database Integration Tests", () => {
     let cache = { pref: 0, city: 0, pref_kana: 0, city_kana: 0 };
     for (const item of test_csv)
       if (!item.city) {
-        // Create api, indexes and root pages
+        // Create api, forms and root pages
         _item = item;
         const [pref, city, pref_kana, city_kana] = await Promise.all([
-          ...DEFAULT_INDEXES.map(({ title }) =>
-            models.indexes.create({ api: item.code, title })
+          ...DEFAULT_FORMS.map(({ key, title }) =>
+            models.forms.create({ api: item.code, form: key, title })
           ),
           models.apis.create({ api: item.code, title: item.pref }),
           models.pages.create({ pathname: item.code, title: item.pref }),
         ]);
         Object.assign(cache, { pref, city, pref_kana, city_kana });
       } else {
-        // create pages and indexes
+        // create pages and forms
         await Promise.all([
           models.pages.create({
             pathname: item.code,
             title: item.city ?? null,
             api: _item!.code,
           }),
-          ...DEFAULT_INDEXES.map(({ key }) =>
+          ...DEFAULT_FORMS.map(({ key }) =>
             models.items.create({
               pathname: item.code,
-              index_id: (cache as any)[key], // ??
+              form_id: (cache as any)[key], // ??
               content: (item as any)[key],
             })
           ),

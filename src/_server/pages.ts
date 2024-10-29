@@ -8,22 +8,15 @@ import { randomUUID } from "crypto";
  */
 export async function create(api: string, formData: FormData) {
   try {
-    const [Api, indexes] = await Promise.all([
-      models.apis.get(api),
-      models.indexes.listByApi(api),
-    ]);
-    if (!Api) return { statusCode: 500 };
-
+    const forms = await models.forms.listByApi(api);
     const pathname = (formData.get("pathname") as string) || `${randomUUID()}`;
     const title = (formData.get("title") as string) || "";
-
-    for (const index of indexes)
+    for (const form of forms)
       await models.items.create({
         pathname,
-        index_id: index.id,
-        content: formData.get(`id_${index.id}`) as string,
+        form_id: form.id,
+        content: formData.get(form.form!) as string,
       });
-
     await models.pages.create({
       api,
       pathname,
@@ -43,18 +36,13 @@ export async function update(
   formData: FormData
 ) {
   try {
-    const [Api, indexes] = await Promise.all([
-      models.apis.get(api),
-      models.indexes.listByApi(api),
-    ]);
+    const forms = await models.forms.listByApi(api);
     const items = await models.items.listByPathname(pathname);
-    if (!Api) return { statusCode: 500 };
-
-    for (const index of indexes) {
-      const content = formData.get(`id_${index.id}`) as string;
-      const item = items.find(({ index_id }) => index_id === index.id);
+    for (const form of forms) {
+      const content = formData.get(form.form!) as string;
+      const item = items.find(({ form_id }) => form_id === form.id);
       if (item) models.items.update({ ...item, content });
-      else models.items.create({ pathname, index_id: index.id, content });
+      else models.items.create({ pathname, form_id: form.id, content });
     }
 
     const redirect = `/apis/${api}`;

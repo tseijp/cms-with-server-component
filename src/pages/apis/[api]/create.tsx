@@ -12,14 +12,7 @@ interface Props {
 
 export default async function CMSApisIdCreatePage(props: Props) {
   const { api } = props;
-
-  const [Api, indexes] = await Promise.all([
-    models.apis.get(api),
-    models.indexes.listByApi(api),
-  ]);
-
-  if (!Api) return "Api Not Found";
-
+  const forms = await models.forms.listByApi(api);
   return (
     <Form _action={actions.pages.create.bind(null, api)}>
       <Header title={api} setting="API 設定" href={`/apis/${api}/setting`}>
@@ -34,8 +27,8 @@ export default async function CMSApisIdCreatePage(props: Props) {
       </Title>
       */}
       <Title title="コンテンツ">
-        {indexes.map(({ id, title }) => (
-          <TextInput key={id} name={`id_${id}`} title={title ?? ""} />
+        {forms.map(({ id, form, title }) => (
+          <TextInput key={id} name={form ?? ""} title={title ?? ""} />
         ))}
       </Title>
     </Form>

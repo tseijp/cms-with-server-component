@@ -3,15 +3,15 @@
 import Border from "./atoms/Border";
 import Button from "./atoms/Button";
 import TextInput from "./atoms/TextInput";
-import { Indexes } from "@/_server/models/indexes";
+import { Forms } from "@/_server/models/forms";
 import React, { Fragment, useState } from "react";
 
 interface Props {
-  indexes: Partial<Indexes>[];
+  forms: Partial<Forms>[];
 }
 
 export function UpdateStructure(props: Props) {
-  const [items, set] = useState(props.indexes);
+  const [forms, set] = useState(props.forms);
 
   const handleClick = () => {
     set((p) => [...p, {}]);
@@ -25,7 +25,7 @@ export function UpdateStructure(props: Props) {
 
   return (
     <>
-      {items.map((item, index) => (
+      {forms.map((form, index) => (
         <Fragment key={index}>
           <div className="relative flex w-full gap-10">
             <button
@@ -35,11 +35,19 @@ export function UpdateStructure(props: Props) {
             >
               削除
             </button>
+            <input name="id" value={form.id} className="hidden" />
+            <div className="flex flex-col w-full">
+              <TextInput
+                title="APIキー"
+                name="form"
+                defaultValue={form.form ?? ""}
+              />
+            </div>
             <div className="flex flex-col w-full">
               <TextInput
                 title="表示名"
                 name="title"
-                defaultValue={item.title ?? ""}
+                defaultValue={form.title ?? ""}
               />
             </div>
           </div>

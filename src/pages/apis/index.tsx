@@ -31,12 +31,12 @@ export default async function ApisPage() {
         </tr>
         {apis.map((item) => (
           <TableRow
-            key={item.pathname}
-            href={`/apis/${item.pathname}`}
+            key={item.api}
+            href={`/apis/${item.api}`}
             className="flex hover:bg-[#F2FCFF] cursor-pointer"
           >
             <td>{item.title}</td>
-            <td>{item.pathname}</td>
+            <td>{item.api}</td>
             <td>
               <Datetime date={item.created_at} />
             </td>

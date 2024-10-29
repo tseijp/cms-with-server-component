@@ -13,24 +13,16 @@ interface Props {
 
 export default async function CMSApisIdUpdatePage(props: Props) {
   const { api, id } = props;
-
-  const [Api, indexes] = await Promise.all([
-    models.apis.get(api),
-    models.indexes.listByApi(api),
-  ]);
-
-  if (!Api) return "Api Not Found";
-
   const page = await models.pages.get(id);
   if (!page) return "Pages Not Found";
-
-  const items = await models.items.listByPathname(page.pathname);
-
+  const [forms, items] = await Promise.all([
+    await models.forms.listByApi(api),
+    await models.items.listByPathname(page.pathname),
+  ]);
   const getValue = (id: number) => {
-    const current = items.find(({ index_id }) => index_id === id);
+    const current = items.find(({ form_id }) => form_id === id);
     return current?.content ?? "";
   };
-
   return (
     <Form _action={actions.pages.update.bind(null, api, id)}>
       <Header title={api} setting="API 設定" href={`/apis/${api}/setting`}>
@@ -43,10 +35,10 @@ export default async function CMSApisIdUpdatePage(props: Props) {
         </Button>
       </Header>
       <Title title="コンテンツ">
-        {indexes.map(({ id, title }) => (
+        {forms.map(({ id, form, title }) => (
           <TextInput
             key={id}
-            name={`id_${id}`}
+            name={form ?? ""}
             title={title ?? ""}
             defaultValue={getValue(id)}
           />

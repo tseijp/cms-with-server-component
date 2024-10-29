@@ -14,15 +14,11 @@ interface Props {
 
 export default async function CMSApisIdSettingPage(props: Props) {
   const { api } = props;
-  const [Api, indexes] = await Promise.all([
-    models.apis.get(api),
-    models.indexes.listByApi(api),
+  const [forms, pages] = await Promise.all([
+    models.forms.listByApi(api),
+    models.pages.listByApi(api),
   ]);
-
-  if (!Api) return "Api Not Found";
-
-  const pages = await models.pages.listByApi(api);
-
+  console.log(forms, pages);
   return (
     <>
       <Form _action={actions.apis.update.bind(null, api)}>
@@ -39,7 +35,7 @@ export default async function CMSApisIdSettingPage(props: Props) {
           </div>
         </Header>
         <Title title="API スキーマ">
-          <UpdateStructure indexes={indexes} />
+          <UpdateStructure forms={forms} />
         </Title>
       </Form>
       <Title title="削除したコンテンツ">
@@ -53,10 +49,10 @@ export default async function CMSApisIdSettingPage(props: Props) {
             コンテンツを完全に削除
           </Button>
           <Form
-            _action={actions.pages.remove.bind(null, Api.api)}
+            _action={actions.pages.remove.bind(null, api)}
             className="p-10"
           >
-            <ConditionalDelete value={Api.api} />
+            <ConditionalDelete value={api} />
           </Form>
         </Modal>
         <Modal small>
@@ -67,10 +63,10 @@ export default async function CMSApisIdSettingPage(props: Props) {
             API を完全に削除
           </Button>
           <Form
-            _action={actions.apis.remove.bind(null, Api.api)}
+            _action={actions.apis.remove.bind(null, api)}
             className="p-10"
           >
-            <ConditionalDelete value={Api.api} />
+            <ConditionalDelete value={api} />
           </Form>
         </Modal>
       </Title>

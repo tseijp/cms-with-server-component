@@ -1,19 +1,21 @@
 import db, { all, one, run } from "./utils";
 
-export interface Indexes {
+export interface Forms {
   id: number;
   api: string;
+  form?: string | null;
   title?: string | null;
   created_at?: string;
   updated_at?: string;
 }
 
 export const init = () => {
-  db.run(/* SQL */ `DROP TABLE IF EXISTS indexes`);
+  db.run(/* SQL */ `DROP TABLE IF EXISTS forms`);
   db.run(/* SQL */ `
-    CREATE TABLE indexes (
+    CREATE TABLE forms (
       id INTEGER PRIMARY KEY,
       api TEXT NOT NULL,
+      form TEXT DEFAULT NULL,
       title TEXT DEFAULT NULL,
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now')),
@@ -22,36 +24,35 @@ export const init = () => {
   `);
 };
 
-// Get text data from indexes
+// Get text data from forms
 export const list = async () => {
-  return await all<Indexes[]>("SELECT * FROM indexes");
+  return await all<Forms[]>("SELECT * FROM forms");
 };
 
 export const listByApi = async (api: string) => {
-  return await all<Indexes[]>(
-    "SELECT * FROM indexes WHERE api = ?",
-    api
-  );
+  return await all<Forms[]>("SELECT * FROM forms WHERE api = ?", api);
 };
 
 export const get = async (id: number) => {
-  return await one<Indexes>("SELECT * FROM indexes WHERE id = ?", id);
+  return await one<Forms>("SELECT * FROM forms WHERE id = ?", id);
 };
 
-// Create indexes for the page
-export const create = async (input: Omit<Indexes, "id">) => {
+// Create forms for the api
+export const create = async (input: Omit<Forms, "id">) => {
   return await run(
-    "INSERT INTO indexes (api, title) VALUES (?, ?)",
+    "INSERT INTO forms (api, form, title) VALUES (?, ?, ?)",
     input.api,
+    input.form ?? null,
     input.title ?? null
   );
 };
 
 // Update a content_item
-export const update = async (input: Indexes) => {
+export const update = async (input: Forms) => {
   return await run(
-    'UPDATE indexes SET api = ?, title = ?, updated_at = datetime("now") WHERE id = ?',
+    'UPDATE forms SET api = ?, form = ?, title = ?, updated_at = datetime("now") WHERE id = ?',
     input.api ?? null,
+    input.form ?? null,
     input.title ?? null,
     input.id
   );
@@ -59,5 +60,5 @@ export const update = async (input: Indexes) => {
 
 // Logically delete a content_item
 export const remove = async (id: number) => {
-  return await run("DELETE FROM indexes WHERE id = ?", id);
+  return await run("DELETE FROM forms WHERE id = ?", id);
 };

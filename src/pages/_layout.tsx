@@ -29,7 +29,7 @@ export default async function RootLayout(props: RootLayoutProps) {
           height={32}
           className="fixed left-3 bottom-3 w-8 h-8 rounded-full bg-[#A8A8C5] max-lg:hidden"
         />
-        <div className="absolute ml-[60px] w-[200px] px-4 py-2 text-[#686889] max-lg:left-[-260px]">
+        <div className="fixed ml-[60px] w-[200px] px-4 py-2 text-[#686889] max-lg:left-[-260px] max-h-full overflow-y-scroll hidden-scrollbar">
           <div className="font-bold pb-6 text-[#21213B]">Untitled</div>
           <WrapLinks title="コンテンツ">
             {apis

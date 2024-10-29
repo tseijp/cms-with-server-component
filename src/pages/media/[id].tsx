@@ -10,10 +10,8 @@ interface Props {
 export default async function CMSMediaPage(props: Props) {
   const { id } = props;
   if (!id) return;
-
   const blob = await models.blobs.get(Number(id));
   if (!blob) return "Blob Not Found";
-
   return (
     <>
       <div className="h-[180px]">
