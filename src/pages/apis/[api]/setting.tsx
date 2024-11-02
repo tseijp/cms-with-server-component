@@ -1,13 +1,15 @@
-import actions from "@/_server";
+import Border from "@/_client/atoms/Border";
 import Button from "@/_client/atoms/Button";
+import Form from "@/_client/atoms/Form";
 import Header from "@/_client/atoms/Header";
 import Modal from "@/_client/atoms/Modal";
+import TextInput from "@/_client/atoms/TextInput";
 import Title from "@/_client/atoms/Title";
-import { ConditionalDelete, UpdateStructure } from "@/_client/setting";
+import { CreateForm, RemoveForm, ConditionalDelete } from "@/_client/setting";
 import PagesTable from "@/_client/table";
+import actions from "@/_server";
 import models from "@/_server/models";
-import { listStructures } from "_articles/utils";
-import Form from "@/_client/atoms/Form";
+import { Fragment } from "react/jsx-runtime";
 
 interface Props {
   api: string;
@@ -15,15 +17,14 @@ interface Props {
 
 export default async function CMSApisIdSettingPage(props: Props) {
   const { api } = props;
-  const template = await models.templates.get(api);
-  if (!template) return "Template Not Found";
-
-  const pages = await models.pages.listByTemplate(api);
-  const structures = listStructures(template.structures);
+  const [forms, pages] = await Promise.all([
+    models.forms.listByApi(api),
+    models.pages.listByApi(api),
+  ]);
 
   return (
     <>
-      <Form _action={actions.apis.update.bind(null, api)}>
+      <Form _action={actions.forms.update.bind(null, api)}>
         <Header
           active
           title={api}
@@ -37,7 +38,29 @@ export default async function CMSApisIdSettingPage(props: Props) {
           </div>
         </Header>
         <Title title="API スキーマ">
-          <UpdateStructure items={structures} />
+          {forms.map((form, index) => (
+            <Fragment key={index}>
+              <div className="relative flex w-full gap-10">
+                <RemoveForm api={api} formId={form.id} />
+                <div className="flex flex-col w-full">
+                  <TextInput
+                    title="APIキー"
+                    name="name"
+                    defaultValue={form.form_name ?? ""}
+                  />
+                </div>
+                <div className="flex flex-col w-full">
+                  <TextInput
+                    title="表示名"
+                    name="title"
+                    defaultValue={form.form_title ?? ""}
+                  />
+                </div>
+              </div>
+              <Border />
+            </Fragment>
+          ))}
+          <CreateForm api={api} />
         </Title>
       </Form>
       <Title title="削除したコンテンツ">
@@ -50,11 +73,8 @@ export default async function CMSApisIdSettingPage(props: Props) {
           <Button className="flex-0 h-12 border border-[#DC2647] text-[#DC2647] hover:opacity-50 disabled:opacity-25">
             コンテンツを完全に削除
           </Button>
-          <Form
-            _action={actions.pages.remove.bind(null, template.pathname)}
-            className="p-10"
-          >
-            <ConditionalDelete value={template.pathname} />
+          <Form _action={actions.pages.remove.bind(null, api)} className="p-10">
+            <ConditionalDelete value={api} />
           </Form>
         </Modal>
         <Modal small>
@@ -64,11 +84,8 @@ export default async function CMSApisIdSettingPage(props: Props) {
           >
             API を完全に削除
           </Button>
-          <Form
-            _action={actions.apis.remove.bind(null, template.pathname)}
-            className="p-10"
-          >
-            <ConditionalDelete value={template.pathname} />
+          <Form _action={actions.apis.remove.bind(null, api)} className="p-10">
+            <ConditionalDelete value={api} />
           </Form>
         </Modal>
       </Title>

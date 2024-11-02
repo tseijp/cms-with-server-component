@@ -1,9 +1,11 @@
-import * as media from "./media";
-import * as pages from "./pages";
 import * as apis from "./apis";
+import * as blobs from "./blobs";
+import * as forms from "./forms";
+import * as pages from "./pages";
 
 export default {
-  media,
+  blobs,
+  forms,
   pages,
   apis,
 };

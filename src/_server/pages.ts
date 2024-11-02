@@ -2,30 +2,25 @@
 
 import models from "./models";
 import { randomUUID } from "crypto";
-import { listStructures } from "@/utils";
 
 /**
  * public method
  */
 export async function create(api: string, formData: FormData) {
   try {
-    const template = await models.templates.get(api);
-    if (!template) return { statusCode: 500 };
-
+    const forms = await models.forms.listByApi(api);
     const pathname = (formData.get("pathname") as string) || `${randomUUID()}`;
-    const structures = listStructures(template.structures);
-
-    for (const structure of structures)
+    const title = (formData.get("title") as string) || "";
+    for (const form of forms)
       await models.items.create({
         pathname,
-        template_key: structure.key,
-        template_value: formData.get(structure.key) as string,
+        form_id: form.id,
+        content: formData.get(form.form_name!) as string,
       });
-    await models.relations.create(api, pathname, "list");
     await models.pages.create({
-      template: api,
+      api,
       pathname,
-      title: "xxx",
+      title,
       metadata: "{}",
     });
     return { statusCode: 200, message: "", redirect: `/apis/${api}` };
@@ -38,27 +33,18 @@ export async function create(api: string, formData: FormData) {
 export async function update(
   api: string,
   pathname: string,
-  formData: FormData,
+  formData: FormData
 ) {
   try {
-    const template = await models.templates.get(api);
+    const forms = await models.forms.listByApi(api);
     const items = await models.items.listByPathname(pathname);
-    if (!template) return { statusCode: 500 };
-
-    for (const structure of listStructures(template.structures)) {
-      const { key } = structure;
-      const value = formData.get(key) as string;
-      const item = items.find((item) => item.template_key === key);
-
-      // create or update new item
-      if (item) models.items.update({ ...item, template_value: value });
-      else
-        models.items.create({
-          pathname,
-          template_key: structure.key,
-          template_value: value,
-        });
+    for (const form of forms) {
+      const content = formData.get(form.form!) as string;
+      const item = items.find(({ form_id }) => form_id === form.id);
+      if (item) models.items.update({ ...item, content });
+      else models.items.create({ pathname, form_id: form.id, content });
     }
+
     const redirect = `/apis/${api}`;
     return { statusCode: 200, message: "", redirect };
   } catch (error) {
@@ -70,10 +56,9 @@ export async function update(
 export async function remove(api: string) {
   try {
     const [pages, trashes] = await Promise.all([
-      models.pages.listByTemplate(api),
-      models.pages.listTrashByTemplate(api),
+      models.pages.listByApi(api),
+      models.pages.listTrashByApi(api),
     ]);
-
     await Promise.all([
       ...pages.map((page) => models.pages.hardRemove(page.pathname)),
       ...trashes.map((page) => models.pages.hardRemove(page.pathname)),

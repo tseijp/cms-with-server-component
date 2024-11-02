@@ -1,16 +1,15 @@
 import { LinkButton } from "@/_client/atoms/Button";
+import Datetime from "@/_client/atoms/DateTime";
 import Header from "@/_client/atoms/Header";
 import Table from "@/_client/atoms/Table";
-import models from "@/_server/models";
-import Datetime from "@/_client/atoms/DateTime";
 import { TableRow } from "@/_client/pages";
-
+import models from "@/_server/models";
 
 export default async function ApisPage() {
-  const templates = await models.templates.list();
+  const apis = await models.apis.list();
   return (
     <>
-      <Header title="API管理">
+      <Header title="API 管理">
         <input
           placeholder="検索"
           className="rounded px-3 w-60 h-10 bg-[#F8F9FD]"
@@ -30,14 +29,14 @@ export default async function ApisPage() {
           <th>作成日</th>
           <th>更新日</th>
         </tr>
-        {templates.map((item) => (
+        {apis.map((item) => (
           <TableRow
-            key={item.pathname}
-            href={`/apis/${item.pathname}`}
+            key={item.api}
+            href={`/apis/${item.api}`}
             className="flex hover:bg-[#F2FCFF] cursor-pointer"
           >
             <td>{item.title}</td>
-            <td>{item.pathname}</td>
+            <td>{item.api}</td>
             <td>
               <Datetime date={item.created_at} />
             </td>
@@ -50,9 +49,3 @@ export default async function ApisPage() {
     </>
   );
 }
-
-export const getConfig = async () => {
-  return {
-    render: "static",
-  } as const;
-};

@@ -4,8 +4,8 @@ export interface ContentItems {
   id: number;
   pathname?: string | null;
   blob_id?: number | null;
-  template_key?: string | null;
-  template_value?: string | null;
+  form_id?: number | null;
+  content?: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -16,18 +16,19 @@ export const init = () => {
     CREATE TABLE items (
       id INTEGER PRIMARY KEY,
       blob_id INTEGER DEFAULT NULL,
+      form_id INTEGER DEFAULT NULL,
+      content TEXT DEFAULT NULL,
       pathname TEXT DEFAULT NULL,
-      template_key TEXT DEFAULT NULL,
-      template_value TEXT DEFAULT NULL,
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now')),
-      FOREIGN KEY (blob_id) REFERENCES blobs(id),
-      FOREIGN KEY (pathname) REFERENCES pages(id)
+      FOREIGN KEY (id) REFERENCES blobs(id),
+      FOREIGN KEY (id) REFERENCES forms(id),
+      FOREIGN KEY (id) REFERENCES pages(id)
     );
   `);
 };
 
-// Get text data from items (excluding logically deleted ones)
+// Get text data from items
 export const list = async () => {
   return await all<ContentItems[]>("SELECT * FROM items");
 };
@@ -39,6 +40,13 @@ export const listByPathname = async (pathname: string) => {
   );
 };
 
+export const listByForm = async (form_id: number) => {
+  return await all<ContentItems[]>(
+    "SELECT * FROM items WHERE form_id = ?",
+    form_id
+  );
+};
+
 export const get = async (id: number) => {
   return await one<ContentItems>("SELECT * FROM items WHERE id = ?", id);
 };
@@ -46,22 +54,22 @@ export const get = async (id: number) => {
 // Create items for the page
 export const create = async (input: Omit<ContentItems, "id">) => {
   return await run(
-    "INSERT INTO items (pathname, template_key, template_value, blob_id) VALUES (?, ?, ?, ?)",
+    "INSERT INTO items (pathname, blob_id, form_id, content) VALUES (?, ?, ?, ?)",
     input.pathname ?? null,
-    input.template_key ?? null,
-    input.template_value ?? null,
     input.blob_id ?? null,
+    input.form_id ?? null,
+    input.content ?? null
   );
 };
 
 // Update a content_item
 export const update = async (input: ContentItems) => {
   return await run(
-    'UPDATE items SET template_key = ?, template_value = ?, blob_id = ?, updated_at = datetime("now") WHERE id = ?',
-    input.template_key ?? null,
-    input.template_value ?? null,
+    'UPDATE items SET blob_id = ?, form_id = ?, content = ?, updated_at = datetime("now") WHERE id = ?',
     input.blob_id ?? null,
-    input.id,
+    input.form_id ?? null,
+    input.content ?? null,
+    input.id
   );
 };
 

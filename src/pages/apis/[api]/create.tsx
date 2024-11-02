@@ -5,7 +5,6 @@ import TextInput from "@/_client/atoms/TextInput";
 import Title from "@/_client/atoms/Title";
 import actions from "@/_server";
 import models from "@/_server/models";
-import { listStructures } from "@/utils";
 
 interface Props {
   api: string;
@@ -13,12 +12,7 @@ interface Props {
 
 export default async function CMSApisIdCreatePage(props: Props) {
   const { api } = props;
-
-  const template = await models.templates.get(api);
-  if (!template) return "Template Not Found";
-
-  const structures = listStructures(template.structures);
-
+  const forms = await models.forms.listByApi(api);
   return (
     <Form _action={actions.pages.create.bind(null, api)}>
       <Header title={api} setting="API 設定" href={`/apis/${api}/setting`}>
@@ -33,13 +27,8 @@ export default async function CMSApisIdCreatePage(props: Props) {
       </Title>
       */}
       <Title title="コンテンツ">
-        {structures.map((item) => (
-          <TextInput
-            key={item.key}
-            name={item.key}
-            title={item.title}
-            defaultValue={item.value}
-          />
+        {forms.map(({ id, form_name, form_title }) => (
+          <TextInput key={id} name={form_name ?? ""} title={form_title ?? ""} />
         ))}
       </Title>
     </Form>

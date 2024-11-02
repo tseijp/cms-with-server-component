@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
 import { MenuLink } from "../layout";
+import React from "react";
 
 interface Props {
   active?: boolean;
