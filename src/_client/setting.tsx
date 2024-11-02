@@ -1,67 +1,51 @@
 "use client";
 
-import Border from "./atoms/Border";
 import Button from "./atoms/Button";
 import TextInput from "./atoms/TextInput";
-import { Forms } from "@/_server/models/forms";
-import React, { Fragment, useState } from "react";
+import React, { useState } from "react";
+import actions from "@/_server";
 
-interface Props {
-  forms: Partial<Forms>[];
+interface CreateFormProps {
+  api: string;
 }
 
-export function UpdateStructure(props: Props) {
-  const [forms, set] = useState(props.forms);
-
-  const handleClick = () => {
-    set((p) => [...p, {}]);
+export function CreateForm(props: CreateFormProps) {
+  const { api } = props;
+  const handleClick = async () => {
+    const res = await actions.forms.create(api);
+    if (res.statusCode === 200) window.location.reload();
   };
+  return (
+    <Button
+      onClick={handleClick}
+      className="text-[#563BFE] border border-[#563BFE]"
+    >
+      <span className="mr-4">+</span>
+      フィールドを追加
+    </Button>
+  );
+}
 
-  const handleRemove = (index = 0) => {
-    return () => {
-      set((p) => p.filter((_, i) => i !== index));
-    };
+interface RemoveFormProps {
+  api: string;
+  formId: number;
+}
+
+export function RemoveForm(props: RemoveFormProps) {
+  const { api, formId } = props;
+  const handleClick = async () => {
+    const res = await actions.forms.remove(api, formId);
+    if (res.statusCode === 200) window.location.reload();
   };
 
   return (
-    <>
-      {forms.map((form, index) => (
-        <Fragment key={index}>
-          <div className="relative flex w-full gap-10">
-            <button
-              type="submit"
-              onClick={handleRemove(index)}
-              className="absolute right-0 -top-6"
-            >
-              削除
-            </button>
-            <input name="id" value={form.id} className="hidden" />
-            <div className="flex flex-col w-full">
-              <TextInput
-                title="APIキー"
-                name="form"
-                defaultValue={form.form ?? ""}
-              />
-            </div>
-            <div className="flex flex-col w-full">
-              <TextInput
-                title="表示名"
-                name="title"
-                defaultValue={form.title ?? ""}
-              />
-            </div>
-          </div>
-          <Border />
-        </Fragment>
-      ))}
-      <Button
-        onClick={handleClick}
-        className="text-[#563BFE] border border-[#563BFE]"
-      >
-        <span className="mr-4">+</span>
-        フィールドを追加
-      </Button>
-    </>
+    <button
+      type="button"
+      onClick={handleClick}
+      className="absolute right-0 -top-6"
+    >
+      削除
+    </button>
   );
 }
 

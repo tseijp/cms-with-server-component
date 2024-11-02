@@ -15,7 +15,7 @@ export async function create(api: string, formData: FormData) {
       await models.items.create({
         pathname,
         form_id: form.id,
-        content: formData.get(form.form!) as string,
+        content: formData.get(form.form_name!) as string,
       });
     await models.pages.create({
       api,

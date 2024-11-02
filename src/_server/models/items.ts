@@ -40,6 +40,13 @@ export const listByPathname = async (pathname: string) => {
   );
 };
 
+export const listByForm = async (form_id: number) => {
+  return await all<ContentItems[]>(
+    "SELECT * FROM items WHERE form_id = ?",
+    form_id
+  );
+};
+
 export const get = async (id: number) => {
   return await one<ContentItems>("SELECT * FROM items WHERE id = ?", id);
 };

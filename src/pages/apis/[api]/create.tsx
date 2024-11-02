@@ -27,8 +27,8 @@ export default async function CMSApisIdCreatePage(props: Props) {
       </Title>
       */}
       <Title title="コンテンツ">
-        {forms.map(({ id, form, title }) => (
-          <TextInput key={id} name={form ?? ""} title={title ?? ""} />
+        {forms.map(({ id, form_name, form_title }) => (
+          <TextInput key={id} name={form_name ?? ""} title={form_title ?? ""} />
         ))}
       </Title>
     </Form>

@@ -35,11 +35,11 @@ export default async function CMSApisIdUpdatePage(props: Props) {
         </Button>
       </Header>
       <Title title="コンテンツ">
-        {forms.map(({ id, form, title }) => (
+        {forms.map(({ id, form_name, form_title }) => (
           <TextInput
             key={id}
-            name={form ?? ""}
-            title={title ?? ""}
+            name={form_name ?? ""}
+            title={form_title ?? ""}
             defaultValue={getValue(id)}
           />
         ))}

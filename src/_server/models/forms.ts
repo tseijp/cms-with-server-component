@@ -3,8 +3,8 @@ import db, { all, one, run } from "./utils";
 export interface Forms {
   id: number;
   api: string;
-  form?: string | null;
-  title?: string | null;
+  form_name?: string | null;
+  form_title?: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -15,8 +15,8 @@ export const init = () => {
     CREATE TABLE forms (
       id INTEGER PRIMARY KEY,
       api TEXT NOT NULL,
-      form TEXT DEFAULT NULL,
-      title TEXT DEFAULT NULL,
+      form_name TEXT DEFAULT NULL,
+      form_title TEXT DEFAULT NULL,
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now')),
       FOREIGN KEY (api) REFERENCES apis(api)
@@ -40,20 +40,20 @@ export const get = async (id: number) => {
 // Create forms for the api
 export const create = async (input: Omit<Forms, "id">) => {
   return await run(
-    "INSERT INTO forms (api, form, title) VALUES (?, ?, ?)",
+    "INSERT INTO forms (api, form_name, form_title) VALUES (?, ?, ?)",
     input.api,
-    input.form ?? null,
-    input.title ?? null
+    input.form_name ?? null,
+    input.form_title ?? null
   );
 };
 
 // Update a content_item
 export const update = async (input: Forms) => {
   return await run(
-    'UPDATE forms SET api = ?, form = ?, title = ?, updated_at = datetime("now") WHERE id = ?',
+    'UPDATE forms SET api = ?, form_name = ?, form_title = ?, updated_at = datetime("now") WHERE id = ?',
     input.api ?? null,
-    input.form ?? null,
-    input.title ?? null,
+    input.form_name ?? null,
+    input.form_title ?? null,
     input.id
   );
 };
