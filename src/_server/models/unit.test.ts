@@ -128,12 +128,8 @@ describe("Database Integration Tests", () => {
   });
 
   it("CRUD operations on items", async () => {
-    // Create a page
-    const pathname = "/tmp";
-    await models.pages.create({ pathname });
-
     // Create a content item
-    const id = await models.items.create({ pathname });
+    const id = await models.items.create({ pathname: "/tmp" });
     expect(models.items.get(id)).toBeDefined();
 
     // Update the content item

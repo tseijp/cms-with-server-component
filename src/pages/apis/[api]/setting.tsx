@@ -1,14 +1,15 @@
 import Border from "@/_client/atoms/Border";
 import Button from "@/_client/atoms/Button";
+import Field from "@/_client/atoms/Field";
 import Form from "@/_client/atoms/Form";
 import Header from "@/_client/atoms/Header";
 import Modal from "@/_client/atoms/Modal";
-import TextInput from "@/_client/atoms/TextInput";
 import Title from "@/_client/atoms/Title";
 import { CreateForm, RemoveForm, ConditionalDelete } from "@/_client/setting";
 import PagesTable from "@/_client/table";
 import actions from "@/_server";
 import models from "@/_server/models";
+import { FORM_TYPES } from "@/const";
 import { Fragment } from "react/jsx-runtime";
 
 interface Props {
@@ -43,18 +44,31 @@ export default async function CMSApisIdSettingPage(props: Props) {
               <div className="relative flex w-full gap-10">
                 <RemoveForm api={api} formId={form.id} />
                 <div className="flex flex-col w-full">
-                  <TextInput
+                  <Field
                     title="APIキー"
                     name="name"
                     defaultValue={form.form_name ?? ""}
                   />
                 </div>
                 <div className="flex flex-col w-full">
-                  <TextInput
+                  <Field
                     title="表示名"
                     name="title"
                     defaultValue={form.form_title ?? ""}
                   />
+                </div>
+                <div className="flex flex-col w-full">
+                  <Field title="タイプ" name="type" form_type="select">
+                    {FORM_TYPES.map((type, index) => (
+                      <option
+                        value={type.type}
+                        key={index}
+                        selected={form.form_type === type.type}
+                      >
+                        {type.title}
+                      </option>
+                    ))}
+                  </Field>
                 </div>
               </div>
               <Border />

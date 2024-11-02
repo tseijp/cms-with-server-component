@@ -1,7 +1,7 @@
 "use client";
 
 import Button from "./atoms/Button";
-import TextInput from "./atoms/TextInput";
+import Field from "./atoms/Field";
 import React, { useState } from "react";
 import actions from "@/_server";
 
@@ -58,7 +58,7 @@ export function ConditionalDelete({ value }: { value: string }) {
 
   return (
     <div className="flex flex-col">
-      <TextInput
+      <Field
         title={`確認：${value} と入力`}
         placeholder={value}
         onChange={handleChange}

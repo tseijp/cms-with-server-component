@@ -1,7 +1,7 @@
 import Button from "@/_client/atoms/Button";
 import Form from "@/_client/atoms/Form";
 import Header from "@/_client/atoms/Header";
-import TextInput from "@/_client/atoms/TextInput";
+import Field from "@/_client/atoms/Field";
 import Title from "@/_client/atoms/Title";
 import actions from "@/_server";
 import models from "@/_server/models";
@@ -35,12 +35,13 @@ export default async function CMSApisIdUpdatePage(props: Props) {
         </Button>
       </Header>
       <Title title="コンテンツ">
-        {forms.map(({ id, form_name, form_title }) => (
-          <TextInput
+        {forms.map(({ id, form_name, form_type, form_title }) => (
+          <Field
             key={id}
             name={form_name ?? ""}
             title={form_title ?? ""}
             defaultValue={getValue(id)}
+            form_type={form_type}
           />
         ))}
       </Title>

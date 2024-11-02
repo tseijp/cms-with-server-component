@@ -1,6 +1,7 @@
 "use server";
 
 import models from "./models";
+import { FormType } from "@/const";
 
 export async function create(api: string) {
   try {
@@ -14,16 +15,18 @@ export async function create(api: string) {
 }
 
 export async function update(api: string, formData: FormData) {
+  const names = formData.getAll("name");
+  const types = formData.getAll("type");
+  const titles = formData.getAll("title");
   try {
     const forms = await models.forms.listByApi(api);
-    const names = formData.getAll("name") as string[];
-    const titles = formData.getAll("title") as string[];
-    const promises = forms.map((form, index) => {
-      const form_name = names[index]!;
-      const form_title = titles[index]!;
-      return models.forms.update({ ...form, form_name, form_title });
+    const awaits = forms.map((form, index) => {
+      const form_name = names[index] as string;
+      const form_type = types[index] as FormType;
+      const form_title = titles[index] as string;
+      return models.forms.update({ ...form, form_name, form_type, form_title });
     });
-    await Promise.all(promises);
+    await Promise.all(awaits);
     const redirect = `/apis/${api}`;
     return { statusCode: 200, redirect };
   } catch (error) {

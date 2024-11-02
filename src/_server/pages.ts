@@ -11,18 +11,21 @@ export async function create(api: string, formData: FormData) {
     const forms = await models.forms.listByApi(api);
     const pathname = (formData.get("pathname") as string) || `${randomUUID()}`;
     const title = (formData.get("title") as string) || "";
-    for (const form of forms)
-      await models.items.create({
+    await Promise.all([
+      ...forms.map((form) =>
+        models.items.create({
+          pathname,
+          form_id: form.id,
+          content: formData.get(form.form_name!) as string,
+        })
+      ),
+      models.pages.create({
+        api,
         pathname,
-        form_id: form.id,
-        content: formData.get(form.form_name!) as string,
-      });
-    await models.pages.create({
-      api,
-      pathname,
-      title,
-      metadata: "{}",
-    });
+        title,
+        metadata: "{}",
+      }),
+    ]);
     return { statusCode: 200, message: "", redirect: `/apis/${api}` };
   } catch (error) {
     console.error(error);
@@ -36,15 +39,18 @@ export async function update(
   formData: FormData
 ) {
   try {
-    const forms = await models.forms.listByApi(api);
-    const items = await models.items.listByPathname(pathname);
-    for (const form of forms) {
-      const content = formData.get(form.form!) as string;
-      const item = items.find(({ form_id }) => form_id === form.id);
-      if (item) models.items.update({ ...item, content });
-      else models.items.create({ pathname, form_id: form.id, content });
-    }
-
+    const [forms, items] = await Promise.all([
+      models.forms.listByApi(api),
+      models.items.listByPathname(pathname),
+    ]);
+    await Promise.all(
+      forms.map((form) => {
+        const content = formData.get(form.form_name!) as string;
+        const item = items.find(({ form_id }) => form_id === form.id);
+        if (item) return models.items.update({ ...item, content });
+        return models.items.create({ pathname, form_id: form.id, content });
+      })
+    );
     const redirect = `/apis/${api}`;
     return { statusCode: 200, message: "", redirect };
   } catch (error) {
